@@ -1,43 +1,48 @@
-# Написать программу сложения и умножения двух шестнадцатеричных чисел.
-# При этом каждое число представляется как массив, элементы которого — цифры числа.
-# Например, пользователь ввёл A2 и C4F. Нужно сохранить их как [‘A’, ‘2’] и [‘C’, ‘4’, ‘F’] соответственно.
-# Сумма чисел из примера: [‘C’, ‘F’, ‘1’], произведение - [‘7’, ‘C’, ‘9’, ‘F’, ‘E’].
+'''1. Подсчитать, сколько было выделено памяти под переменные в ранее
+разработанных программах в рамках первых трех уроков. Проанализировать
+результат и определить программы с наиболее эффективным использованием памяти.
+Примечание: Для анализа возьмите любые 1-3 ваших программы или несколько
+вариантов кода для одной и той же задачи. Результаты анализа вставьте в виде
+комментариев к коду. Также укажите в комментариях версию Python и разрядность
+вашей ОС.'''
 
+'''
+x86_64 GNU/Linux
+Python 3.7.3
+'''
+'''
+Размер листа больше, чем неизменяемый кортеж, с одним набором данных
+(912 байт у листа 848 байт у кортежа). Размер не зависит от разрядности чисел.
+Зависит от размера массива.
+Каждый элемент массива занимает 28 байт. 100 элементов по 28 байт занимают
+2800 байт. Это значительно больше размера массива этих данных, т.к. Python
+делает оптимизацию и создаёт ссылки на один и тот же объект.
+'''
 
-from collections import defaultdict
-from collections import deque
+'''lesson-03_7'''
+import random
+import sys
 
+r = [random.randint(0, 99) for _ in range(100)]
+print(f'Массив: {r}')
 
-def my_dex(string):
-    dex = 0
-    num = deque(string)
-    num.reverse()
-    for i in range(len(num)):
-        dex += table[num[i]] * 16 ** i
-    return dex
+min_index_1 = 0
+min_index_2 = 1
 
+for i in r:
+    if r[min_index_1] > i:
+        min_index_2 = min_index_1
+        min_index_1 = r.index(i)
+    elif r[min_index_2] > i:
+        min_index_2 = r.index(i)
 
-def my_hex(numb):
-    num = deque()
-    while numb > 0:
-        d = numb % 16
-        for i in table:
-            if table[i] == d:
-                num.append(i)
-        numb //= 16
-    num.reverse()
-    return list(num)
+print(f'Два наименьших элемента: {r[min_index_1]} и {r[min_index_2]}')
 
-
-signs = '0123456789ABCDEF'
-table = defaultdict(int)
-counter = 0
-for key in signs:
-    table[key] += counter
-    counter += 1
-
-num_1 = my_dex(input('Введите первое число в шестнадцатиричном формате:\n ').upper())
-num_2 = my_dex(input('Введите второе число в шестнадцатиричном формате:\n ').upper())
-
-print(f'Сумма чисел: {my_hex(num_1 + num_2)}')
-print(f'Произведение чисел: {my_hex(num_1 * num_2)}')
+print('Размер листа', sys.getsizeof(r))
+print('Размер элемента листа', sys.getsizeof(r[0]))
+print('Размер кортежа', sys.getsizeof(tuple(r)))
+print('Размер элемента кортежа', sys.getsizeof(tuple(r)[0]))
+sum = 0
+for size in r:
+    sum += sys.getsizeof(size)
+print('Размер всех элементов в листе', sum)
