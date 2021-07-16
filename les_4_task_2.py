@@ -1,87 +1,43 @@
-'''
-2. Написать два алгоритма нахождения i-го по счёту простого числа. Функция нахождения простого числа
-должна принимать на вход натуральное и возвращать соответствующее простое число. Проанализировать
-скорость и сложность алгоритмов.
-Первый — с помощью алгоритма «Решето Эратосфена».
-Примечание. Алгоритм «Решето Эратосфена» разбирался на одном из прошлых уроков. Используйте этот код
-и попробуйте его улучшить/оптимизировать под задачу.
-Второй — без использования «Решета Эратосфена».
-Примечание. Вспомните классический способ проверки числа на простоту.
-'''
+# Написать программу сложения и умножения двух шестнадцатеричных чисел.
+# При этом каждое число представляется как массив, элементы которого — цифры числа.
+# Например, пользователь ввёл A2 и C4F. Нужно сохранить их как [‘A’, ‘2’] и [‘C’, ‘4’, ‘F’] соответственно.
+# Сумма чисел из примера: [‘C’, ‘F’, ‘1’], произведение - [‘7’, ‘C’, ‘9’, ‘F’, ‘E’].
 
 
-import math
-import timeit
+from collections import defaultdict
+from collections import deque
 
 
-def sieve_without_eratosthenes(i):
-    '''Функция поиска i-го простого числа,
-    без использования алгоритма «Решето Эратосфена»
-    '''
-
-    lst_prime = [2]
-    number = 3
-    while len(lst_prime) < i:
-        flag = True
-        for j in lst_prime.copy():
-            if number % j == 0:
-                flag = False
-                break
-        if flag:
-            lst_prime.append(number)
-        number += 1
-    return lst_prime[-1]
+def my_dex(string):
+    dex = 0
+    num = deque(string)
+    num.reverse()
+    for i in range(len(num)):
+        dex += table[num[i]] * 16 ** i
+    return dex
 
 
-def sieve_eratosthenes(i):
-    '''Функция поиска i-го простого числа,
-    используя алгоритм «Решето Эратосфена»
-    '''
-
-    i_max = prime_counting_function(i)
-    lst_prime = [_ for _ in range(2, i_max)]
-
-    for number in lst_prime:
-        if lst_prime.index(number) <= number - 1:
-            for j in range(2, len(lst_prime)):
-                if number * j in lst_prime[number:]:
-                    lst_prime.remove(number * j)
-        else:
-            break
-    return lst_prime[i - 1]
+def my_hex(numb):
+    num = deque()
+    while numb > 0:
+        d = numb % 16
+        for i in table:
+            if table[i] == d:
+                num.append(i)
+        numb //= 16
+    num.reverse()
+    return list(num)
 
 
-def prime_counting_function(i):
-    '''Функция возвращает верхнюю границу отрезка на котором лежат
-    i-e количество простых чисел. Функция основана на теореме о
-    распределении простых чисел, она утверждает, что функция
-    распределения простых чисел. Количество простых чисел на отрезке
-    [1;n] растёт с увеличением n как n / ln(n).
-    '''
+signs = '0123456789ABCDEF'
+table = defaultdict(int)
+counter = 0
+for key in signs:
+    table[key] += counter
+    counter += 1
 
-    number_of_primes = 0
-    number = 2
-    while number_of_primes <= i:
-        number_of_primes = number / math.log(number)
-        number += 1
-    return number
+num_1 = my_dex(input('Введите первое число в шестнадцатиричном формате:\n ').upper())
+num_2 = my_dex(input('Введите второе число в шестнадцатиричном формате:\n ').upper())
 
-
-NUMBER_EXECUTIONS = 1
-TEST_VALUE = 1000
-
-time1 = timeit.timeit(f'sieve_without_eratosthenes({TEST_VALUE})',
-                      setup='from __main__ import sieve_without_eratosthenes',
-                      number=NUMBER_EXECUTIONS)
-
-time2 = timeit.timeit(f'sieve_eratosthenes({TEST_VALUE})',
-                      setup='from __main__ import sieve_eratosthenes',
-                      number=NUMBER_EXECUTIONS)
-
-print(f'Программа без использования алгоритма «Решето Эратосфена» быстрее \
-программы с использованием алгоритма «Решето Эратосфена» в \
-{round(time2 / time1, 2)} раз'
-      )
-'''Программа без использования алгоритма «Решето Эратосфена» быстрее
-программы с использованием алгоритма «Решето Эратосфена» в 89.62 раз
-'''
+print(f'Сумма чисел: {my_hex(num_1 + num_2)}')
+print(f'Произведение чисел: {my_hex(num_1 * num_2)}')
