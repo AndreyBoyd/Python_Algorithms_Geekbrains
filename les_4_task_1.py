@@ -1,38 +1,56 @@
-# Пользователь вводит данные о количестве предприятий, их наименования и прибыль
-# за квартал для каждого. Программа должна определить среднюю прибыль и вывести наименования предприятий,
-# чья прибыль выше среднего. Отдельно вывести наименования предприятий, чья прибыль ниже среднего
+'''
+1. Проанализировать скорость и сложность одного любого алгоритма из разработанных в рамках домашнего задания первых трех уроков.
+Примечание. Идеальным решением будет:
+a. выбрать хорошую задачу, которую имеет смысл оценивать,
+b. написать 3 варианта кода (один у вас уже есть),
+c. проанализировать 3 варианта и выбрать оптимальный,
+d. результаты анализа вставить в виде комментариев в файл с кодом (не забудьте указать, для каких N вы проводили замеры),
+e. написать общий вывод: какой из трёх вариантов лучше и почему.
+'''
 
+import random
+import timeit
 
-from collections import namedtuple
+x = [random.randint(0, 100) for _ in range(0, 10)]
+print(x)
 
-Q = 4
-Company = namedtuple('Company', ['name', 'quarters', 'profit'])
-all_comp = set()
+def version1():
+    min1 = 0
+    min2 = 0
 
-num = int(input("Количество организаций: "))
-total_profit = 0
-for i in range(1, num + 1):
-    profit = 0
-    quarters = []
-    name = input(f'Название организации {i}: ')
+    for i, e in enumerate(x):
+        if i == 0:
+            min1 = e
+        elif e <= min1:
+            min2 = min1
+            min1 = e
+        elif e <= min2 or min2 == 0:
+            min2 = e
+    return min1, min2
 
-    for j in range(Q):
-        quarters.append(int(input(f'Прибыль за {j + 1}-й квартал (введите целое число), тыс.руб: ')))
-        profit += quarters[j]
+def version2():
+    min1_2 = 0
+    min2_2 = 0
+    for i, e in enumerate(x):
+        if i == 0:
+            min1_2 = e
+        elif e < min1_2:
+            min2_2 = min1_2
+            min1_2 = e
+        elif e == min1_2:
+            min2_2 = e
+    return min1_2, min2_2
 
-    comp = Company(name=name, quarters=tuple(quarters), profit=profit)
-    all_comp.add(comp)
+def version3():
+    y = sorted(x)
+    return y[0], y[1]
 
-avr = total_profit / num
+print(timeit.timeit('version1()', setup='from __main__ import version1', number=1000000))
+print(timeit.timeit('version2()', setup='from __main__ import version2', number=1000000))
+print(timeit.timeit('version3()', setup='from __main__ import version3', number=1000000))
 
-print(f'Средняя прибыль: {avr}')
+# version1 N = 1000000 result = 0.8284084
+# version1 N = 1000000 result = 0.7385391000000001
+# version1 N = 1000000 result = 0.306033
 
-print(f'Имеют прибыль выше среднего:')
-for comp in all_comp:
-    if comp.profit > avr:
-        print(f'{comp.name} прибыль {comp.profit}')
-
-print(f'Имеют прибыль ниже среднего:')
-for comp in all_comp:
-    if comp.profit < avr:
-        print(f'{comp.name} прибыль {comp.profit}')
+print("Вариант с испльзованием функции sorted является лучшим, т.к. он самый быстрый")
